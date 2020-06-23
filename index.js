@@ -3,6 +3,7 @@ const log = console.log;
 const express = require('express');
 const app = express();
 const schedule = require('node-schedule');
+const path = require('path');
 
 const PORT = process.env.PORT || 3100;
 const server = app.listen(PORT, () => log(`Server started on PORT ${PORT}`));
@@ -10,6 +11,13 @@ const server = app.listen(PORT, () => log(`Server started on PORT ${PORT}`));
 //Routes
 app.use(express.json({ extended: false }));
 app.use('/order', require('./Routes/order'));
+
+if (process.env.NODE_ENV === 'PROD') {
+  app.use(express.static(path.join(__dirname, './Client/build')));
+  app.get('*', (req, res) =>
+    res.sendFile(path.join(__dirname, './Client/build/index.html'))
+  );
+}
 
 //Initialize Modules
 const tickStatic = require('./Components/tickStatic');
